@@ -1,0 +1,4 @@
+build
+CMSIS
+compile_commands.json
+STM32N6xx_HAL_Driver/

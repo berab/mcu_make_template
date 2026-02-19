@@ -13,7 +13,7 @@
 ######################################
 # target
 ######################################
-TARGET = stm32n6_make_template_AppliNonSecure
+TARGET = stm32n6_make_template_FSBL
 
 
 ######################################
@@ -36,28 +36,31 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-../../AppliNonSecure/Core/Src/main.c \
-../../AppliNonSecure/Core/Src/stm32n6xx_it.c \
-../../AppliNonSecure/Core/Src/stm32n6xx_hal_msp.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_cortex.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_rcc.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_rcc_ex.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_gpio.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_dma.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_dma_ex.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_pwr.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_pwr_ex.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_exti.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_tim.c \
-../../Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_tim_ex.c \
-../../AppliNonSecure/Core/Src/system_stm32n6xx_ns.c \
-../../AppliNonSecure/Core/Src/sysmem.c \
-../../AppliNonSecure/Core/Src/syscalls.c  
+Core/Src/main.c \
+Core/Src/stm32n6xx_it.c \
+Core/Src/stm32n6xx_hal_msp.c \
+Drivers/BSP/STM32N6xx_Nucleo/stm32n6xx_nucleo.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_cortex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_rcc.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_rcc_ex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_gpio.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_dma.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_dma_ex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_pwr.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_pwr_ex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_exti.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_usart.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_usart_ex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_uart_ex.c \
+Drivers/STM32N6xx_HAL_Driver/Src/stm32n6xx_hal_uart.c \
+Core/Src/system_stm32n6xx_fsbl.c \
+Core/Src/sysmem.c \
+Core/Src/syscalls.c  
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32n657xx.s
+startup_stm32n657xx_fsbl.s
 
 # ASMM sources
 ASMM_SOURCES = 
@@ -106,7 +109,8 @@ AS_DEFS =
 # C defines
 C_DEFS =  \
 -DUSE_HAL_DRIVER \
--DSTM32N657xx
+-DSTM32N657xx \
+-DUSE_NUCLEO_64
 
 
 # AS includes
@@ -114,12 +118,12 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--I../../AppliNonSecure/Core/Inc \
--I../../Secure_nsclib \
--I../../Drivers/STM32N6xx_HAL_Driver/Inc \
--I../../Drivers/CMSIS/Device/ST/STM32N6xx/Include \
--I../../Drivers/STM32N6xx_HAL_Driver/Inc/Legacy \
--I../../Drivers/CMSIS/Include
+-ICore/Inc \
+-IDrivers/STM32N6xx_HAL_Driver/Inc \
+-IDrivers/CMSIS/Device/ST/STM32N6xx/Include \
+-IDrivers/STM32N6xx_HAL_Driver/Inc/Legacy \
+-IDrivers/BSP/STM32N6xx_Nucleo \
+-IDrivers/CMSIS/Include
 
 
 # compile gcc flags
@@ -133,19 +137,19 @@ endif
 
 
 # Generate dependency information
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+CFLAGS += -mcmse -MMD -MP -MF"$(@:%.o=%.d)"
 
 
 #######################################
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32N657XX_LRUN_ns.ld
+LDSCRIPT = STM32N657XX_AXISRAM2_fsbl.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
 LIBDIR = 
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -Wl,--cmse-implib -Wl,--out-implib=./build/secure_nsclib.o
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -155,7 +159,7 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 # build the application
 #######################################
 # list of objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o))) ../AppliSecure/build/secure_nsclib.o
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))

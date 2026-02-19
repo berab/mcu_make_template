@@ -1,3 +1,5 @@
 CMSIS
 build
 .gdbinit
+compile_commands.json
+build

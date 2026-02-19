@@ -2,3 +2,8 @@
 ## Boards:
 - STM32L4 devices in [stm32l4](https://github.com/berab/stm32_make_template/tree/stm32l4) branch
 - STM32N6 devices in [stm32n6](https://github.com/berab/stm32_make_template/tree/stm32n6) branch
+
+## Clone the repository with all submodules:
+```bash
+git clone --recursive
+```

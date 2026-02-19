@@ -35,7 +35,6 @@ extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <math.h>
 #include "stm32n6xx_hal.h"
 
 #include "stm32n6xx_nucleo.h"
